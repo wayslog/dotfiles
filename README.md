@@ -15,7 +15,7 @@ cd /home/wayslog/.vim/bundle/YouCompleteMe/
 vim +GoInstallBinaries +qa #这一步需要自己搭梯子，或者自己去下镜像站的文件
 ```
 
-### spacemacs
+### 2. spacemacs
 ```
 mv _spacemacs ~/.spacemacs
 git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d/
