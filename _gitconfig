@@ -1,0 +1,14 @@
+[push]
+	default = simple
+[alias]
+	cm = commit
+	co = checkout
+	ac = !git add -A && git commit
+	st = status -sb
+	tags = tag -l
+	branches = branch -a
+	remotes = remote -v
+	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
+[user]
+	email = wayslog@163.com
+	name = wayslog
