@@ -23,6 +23,7 @@ values."
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
+     ;; auto-completion
      ;; lang
      python
      rust
@@ -36,6 +37,7 @@ values."
      sql
      yaml
      emacs-lisp
+     d
      ;; text
      markdown
      puppet
@@ -44,29 +46,32 @@ values."
      ansible
      org
      ;; feature
-     ycmd
+     semantic
+     erc
+     chinese
+     osx
+     (ycmd :variables
+           ycmd-extra-conf-handler 'load
+           ycmd-server-command '("python" "/Users/wayslog/tools/ycmd/ycmd/"))
      gtags
      cscope
      ibuffer
      themes-megapack
      (auto-completion :variables
-                   auto-completion-return-key-behavior 'complete
-                   auto-completion-tab-key-behavior 'cycle
-                   auto-completion-complete-with-key-sequence nil
-                   auto-completion-complete-with-key-sequence-delay 0.1
-                   auto-completion-private-snippets-directory nil
-                   )
+                      auto-completion-enable-sort-by-usage t
+                      auto-completion-enable-snippets-in-popup t
+                      auto-completion-return-key-behavior 'complete
+                      auto-completion-tab-key-behavior 'cycle
+                      auto-completion-complete-with-key-sequence nil
+                      auto-completion-complete-with-key-sequence-delay 0.1
+                      auto-completion-private-snippets-directory nil
+                      )
      (colors :variables colors-enable-nyan-cat-progress-bar t)
      better-defaults
      finance
      git
      version-control
      syntax-checking
-     nixos
-     (shell :variables
-            shell-default-height 30
-            shell-default-position 'bottom)
-     ;;spell-checking
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -128,18 +133,18 @@ values."
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(spacemacs-dark
-                         leuven
-                         solarized-light
                          spacemacs-light
+                         solarized-light
                          solarized-dark
+                         leuven
                          monokai
                          zenburn)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 13
+   dotspacemacs-default-font '("Monaco"
+                               :size 16
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -267,10 +272,29 @@ values."
 
 (defun dotspacemacs/user-init ()
   "Initialization function for user code.
-It is called immediately after `dotspacemacs/init'.  You are free to put almost
-any user code here.  The exception is org related code, which should be placed
-in `dotspacemacs/user-config'."
+It is called immediately after `dotspacemacs/init', before layer configuration
+executes.
+ This function is mostly useful for variables that need to be set
+before packages are loaded. If you are unsure, you should try in setting them in
+`dotspacemacs/user-config' first."
   )
+
+(defun dotspacemacs/user-config ()
+  "Configuration function for user code.
+This function is called at the very end of Spacemacs initialization after
+layers configuration.
+This is the place where most of your configurations should be done. Unless it is
+explicitly specified that a variable should be set before a package is loaded,
+you should place your code here."
+  ;; (spacemacs//set-monospaced-font   "Monaco" "Hiragino Sans GB" 16 16)
+  'ycmd-global-config "/Users/wayslog/tools/ycmd/global_conf.py"
+  (setq company-backends-c-mode-common '((company-c-headers
+                                          company-ycmd
+                                          company-dabbrev :with company-yasnippet)))
+  )
+
+;; Do not write anything past this comment. This is where Emacs will
+;; auto-generate custom variable definitions.
 
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
@@ -280,8 +304,17 @@ layers configuration. You are free to put any user code."
     (setq ledger-post-amount-alignment-column 68))
 
   (setq org-agenda-files (list "~/org/work.org"))
+  (global-company-mode)
   )
 
-;; Do not write anything past this comment. This is where Emacs will
-;; auto-generate custom variable definitions.
+(add-hook 'c++-mode-hook (lambda ()
+                           (setq flycheck-clang-language-standard "c++11")
+                           (setq company-clang-arguments '("-std=c++11"))
+                           (setq flycheck-gcc-language-standard "c++11")))
 
+;; Bind clang-format-region to C-M-tab in all modes:
+(global-set-key [C-M-tab] 'clang-format-region)
+;; Bind clang-format-buffer to tab on the c++-mode only:
+(add-hook 'c++-mode-hook 'clang-format-bindings)
+(defun clang-format-bindings ()
+  (define-key c++-mode-map [tab] 'clang-format-buffer))
